@@ -1,0 +1,58 @@
+
+; Language
+&EN
+
+; SIS header: name, uid, version
+#{"QtMobility"},(0x2002AC89),1,0,2,TYPE=SA,RU
+
+; Localised Vendor name
+%{"Nokia"}
+ 
+; Unique Vendor name
+:"Nokia"
+
+; Manual PKG pre-rules from PRO files
+; Default HW/platform dependencies
+[0x101F7961],0,0,0,{"S60ProductID"}
+[0x102032BE],0,0,0,{"S60ProductID"}
+[0x102752AE],0,0,0,{"S60ProductID"}
+[0x1028315F],0,0,0,{"S60ProductID"}
+ 
+; DEPLOYMENT
+"/epoc32/release/armv5/urel/qtbearer.dll"                  - "!:\sys\bin\qtbearer.dll"
+"/epoc32/release/armv5/urel/qtlocation.dll"                - "!:\sys\bin\qtlocation.dll"
+"/epoc32/release/armv5/urel/qtpublishsubscribe.dll"        - "!:\sys\bin\qtpublishsubscribe.dll"
+"/epoc32/release/armv5/urel/qpspathmapperserver.exe"       - "!:\sys\bin\qpspathmapperserver.exe"
+"/epoc32/release/armv5/urel/qtserviceframework.dll"        - "!:\sys\bin\qtserviceframework.dll"
+"/epoc32/release/armv5/urel/qsfwdatabasemanagerserver.exe" - "!:\sys\bin\qsfwdatabasemanagerserver.exe"
+"/epoc32/release/armv5/urel/qtsysteminfo.dll"              - "!:\sys\bin\qtsysteminfo.dll"
+"/epoc32/release/armv5/urel/qtmessaging.dll"               - "!:\sys\bin\qtmessaging.dll"
+"/epoc32/release/armv5/urel/qtmultimediakit.dll"           - "!:\sys\bin\qtmultimediakit.dll"
+"/epoc32/release/armv5/urel/qtsensors.dll"                 - "!:\sys\bin\qtsensors.dll"
+"/epoc32/release/armv5/urel/qtcontacts.dll"                - "!:\sys\bin\qtcontacts.dll"
+"/epoc32/release/armv5/urel/qtversit.dll"                  - "!:\sys\bin\qtversit.dll"
+
+"/epoc32/release/armv5/urel/qtmultimediakit_m3u.dll"                                 - "!:\sys\bin\qtmultimediakit_m3u.dll"
+"/epoc32/data/z/resource/qt/plugins/playlistformats/qtmultimediakit_m3u.qtplugin"    - "!:\resource\qt\plugins\playlistformats\qtmultimediakit_m3u.qtplugin"
+"/epoc32/release/armv5/urel/qtmultimediakit_xarecordservice.dll"                     - "!:\sys\bin\qtmultimediakit_xarecordservice.dll"
+"/epoc32/data/z/resource/qt/plugins/mediaservice/qtmultimediakit_xarecordservice.qtplugin" - "!:\resource\qt\plugins\mediaservice\qtmultimediakit_xarecordservice.qtplugin"
+"/epoc32/release/armv5/urel/qtmultimediakit_mmfengine.dll"                           - "!:\sys\bin\qtmultimediakit_mmfengine.dll"
+"/epoc32/data/z/resource/qt/plugins/mediaservice/qtmultimediakit_mmfengine.qtplugin" - "!:\resource\qt\plugins\mediaservice\qtmultimediakit_mmfengine.qtplugin"
+"/epoc32/release/armv5/urel/qtsensors_generic.dll"                                   - "!:\sys\bin\qtsensors_generic.dll"
+"/epoc32/data/z/resource/qt/plugins/sensors/qtsensors_generic.qtplugin"              - "!:\resource\qt\plugins\sensors\qtsensors_generic.qtplugin"
+"/epoc32/release/armv5/urel/qtsensors_sym.dll"                                       - "!:\sys\bin\qtsensors_sym.dll"
+"/epoc32/data/z/resource/qt/plugins/sensors/qtsensors_sym.qtplugin"                  - "!:\resource\qt\plugins\sensors\qtsensors_sym.qtplugin"
+"/epoc32/release/armv5/urel/qtcontacts_symbian.dll"                                  - "!:\sys\bin\qtcontacts_symbian.dll"
+"/epoc32/data/z/resource/qt/plugins/contacts/qtcontacts_symbian.qtplugin"            - "!:\resource\qt\plugins\contacts\qtcontacts_symbian.qtplugin"
+"/epoc32/release/armv5/urel/qtcontacts_symbiansim.dll"                               - "!:\sys\bin\qtcontacts_symbiansim.dll"
+"/epoc32/data/z/resource/qt/plugins/contacts/qtcontacts_symbiansim.qtplugin"         - "!:\resource\qt\plugins\contacts\qtcontacts_symbiansim.qtplugin"
+
+"/epoc32/release/armv5/urel/cntsrv.exe"                    - "!:\sys\bin\cntsrv.exe"
+"/epoc32/release/armv5/urel/cntmodel.dll"                  - "!:\sys\bin\cntmodel.dll"
+"/epoc32/release/armv5/urel/cntview.dll"                   - "!:\sys\bin\cntview.dll"
+"/epoc32/release/armv5/urel/cntplsql.dll"                  - "!:\sys\bin\cntplsql.dll"
+"/epoc32/release/armv5/urel/cntvcard.dll"                  - "!:\sys\bin\cntvcard.dll"
+"/epoc32/release/armv5/urel/cntphone.dll"                  - "!:\sys\bin\cntphone.dll"
+"/epoc32/data/z/resource/plugins/cntvcard.rsc"             - "!:\resource\plugins\cntvcard.rsc"
+"/epoc32/data/z/resource/plugins/cntphone.rsc"             - "!:\resource\plugins\cntphone.rsc"
+"/epoc32/data/z/resource/cntmodel/cntmodel.rsc"            - "!:\resource\cntmodel\cntmodel.rsc"

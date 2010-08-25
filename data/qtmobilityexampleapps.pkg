@@ -1,0 +1,23 @@
+; Language
+&EN
+
+; SIS header: name, uid, version
+#{"QtMobilityExamples"},(0xE001E61D),1,0,2,TYPE=SA
+ 
+; Localised Vendor name
+%{"Nokia, Qt"}
+ 
+; Unique Vendor name
+:"Nokia, Qt"
+
+"/epoc32/release/armv5/urel/bearercloud.exe"                        - "!:\sys\bin\bearercloud.exe"
+"/epoc32/data/z/resource/apps/bearercloud.rsc"                      - "!:\resource\apps\bearercloud.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/bearercloud_reg.rsc"   - "!:\private\10003a3f\import\apps\bearercloud_reg.rsc"
+
+"/epoc32/release/armv5/urel/bearermonitor.exe"                      - "!:\sys\bin\bearermonitor.exe"
+"/epoc32/data/z/resource/apps/bearermonitor.rsc"                    - "!:\resource\apps\bearermonitor.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/bearermonitor_reg.rsc" - "!:\private\10003a3f\import\apps\bearermonitor_reg.rsc"
+
+"/epoc32/release/armv5/urel/BearerEx.exe"                           - "!:\sys\bin\BearerEx.exe"
+"/epoc32/data/z/resource/apps/BearerEx.rsc"                         - "!:\resource\apps\BearerEx.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/BearerEx_reg.rsc"      - "!:\private\10003a3f\import\apps\BearerEx_reg.rsc"

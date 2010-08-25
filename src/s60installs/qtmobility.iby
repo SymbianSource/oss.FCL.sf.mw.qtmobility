@@ -1,0 +1,65 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation, version 2.1 of the License.
+* 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, 
+* see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
+*
+* Description: 
+*
+*/
+
+#ifndef __QT_MOBILITY_IBY__
+#define __QT_MOBILITY_IBY__
+
+#include <bldvariant.hrh>
+#include <data_caging_paths_for_iby.hrh>
+
+//Stub sis
+data=ZSYSTEM\install\qtmobility_stub.sis                                                 \system\install\qtmobility_stub.sis
+
+//Core
+file=ABI_DIR\BUILD_DIR\qtbearer.dll                                                      SHARED_LIB_DIR\qtbearer.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtlocation.dll                                                    SHARED_LIB_DIR\qtlocation.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtpublishsubscribe.dll                                            SHARED_LIB_DIR\qtpublishsubscribe.dll PAGED
+file=ABI_DIR\BUILD_DIR\qpspathmapperserver.exe                                           PROGRAMS_DIR\qpspathmapperserver.exe PAGED
+file=ABI_DIR\BUILD_DIR\qtserviceframework.dll                                            SHARED_LIB_DIR\qtserviceframework.dll PAGED
+file=ABI_DIR\BUILD_DIR\qsfwdatabasemanagerserver.exe                                     PROGRAMS_DIR\qsfwdatabasemanagerserver.exe PAGED
+file=ABI_DIR\BUILD_DIR\qtsysteminfo.dll                                                  SHARED_LIB_DIR\qtsysteminfo.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtmessaging.dll                                                   SHARED_LIB_DIR\qtmessaging.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtmultimediakit.dll                                               SHARED_LIB_DIR\qtmultimediakit.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtsensors.dll                                                     SHARED_LIB_DIR\qtsensors.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtcontacts.dll                                                    SHARED_LIB_DIR\qtcontacts.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtversit.dll                                                      SHARED_LIB_DIR\qtversit.dll PAGED
+
+//Plugins
+file=ABI_DIR\BUILD_DIR\qtmultimediakit_m3u.dll                                           SHARED_LIB_DIR\qtmultimediakit_m3u.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\playlistformats\qtmultimediakit_m3u.qtplugin     resource\qt\plugins\playlistformats\qtmultimediakit_m3u.qtplugin
+file=ABI_DIR\BUILD_DIR\qtmultimediakit_xarecordservice.dll                               SHARED_LIB_DIR\qtmultimediakit_xarecordservice.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\mediaservice\qtmultimediakit_xarecordservice.qtplugin    resource\qt\plugins\mediaservice\qtmultimediakit_xarecordservice.qtplugin
+file=ABI_DIR\BUILD_DIR\qtmultimediakit_mmfengine.dll                                     SHARED_LIB_DIR\qtmultimediakit_mmfengine.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\mediaservice\qtmultimediakit_mmfengine.qtplugin  resource\qt\plugins\mediaservice\qtmultimediakit_mmfengine.qtplugin
+file=ABI_DIR\BUILD_DIR\qtsensors_generic.dll                                             SHARED_LIB_DIR\qtsensors_generic.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\sensors\qtsensors_generic.qtplugin               resource\qt\plugins\sensors\qtsensors_generic.qtplugin
+file=ABI_DIR\BUILD_DIR\qtsensors_sym.dll                                                 SHARED_LIB_DIR\qtsensors_sym.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\sensors\qtsensors_sym.qtplugin                   resource\qt\plugins\sensors\qtsensors_sym.qtplugin
+file=ABI_DIR\BUILD_DIR\qtcontacts_symbian.dll                                            SHARED_LIB_DIR\qtcontacts_symbian.dll
+data=\epoc32\data\z\resource\qt\plugins\contacts\qtcontacts_symbian.qtplugin             resource\qt\plugins\contacts\qtcontacts_symbian.qtplugin
+file=ABI_DIR\BUILD_DIR\qtcontacts_symbiansim.dll                                         SHARED_LIB_DIR\qtcontacts_symbiansim.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\contacts\qtcontacts_symbiansim.qtplugin          resource\qt\plugins\contacts\qtcontacts_symbiansim.qtplugin
+
+//Resource
+data=DATAZ_\CONTACTS_RESOURCE_DIR\cntmodel.rsc                                           CONTACTS_RESOURCE_DIR\cntmodel.rsc
+data=\epoc32\data\z\private\2002ac7f\qtserviceframework_4.7_system.db                    private\2002ac7f\qtserviceframework_4.7_system.db
+
+#endif // __QT_MOBILITY_IBY__
