@@ -7,12 +7,12 @@ SFWTOOL=$(EPOCROOT)epoc32/tools/servicedbgen
 
 #choose target database to deal with
 ifeq ($(PLATFORM), WINSCW)
-QTSERVICE_TARGET:=-twinscw
+	QTSERVICE_TARGET:=-twinscw
 else
 ifeq ($(PLATFORM), ARMV5)
 QTSERVICE_TARGET:=-tarmv5
 else
-QTSERVICE_TARGET:=-tall
+	QTSERVICE_TARGET:=-tall
 endif
 endif
 
