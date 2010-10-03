@@ -71,6 +71,9 @@ public:
     bool isMuted() const;
     void applySettings();
 
+Q_SIGNALS:
+    void durationChanged(qint64 position);
+
 public Q_SLOTS:
     void record();
     void pause();

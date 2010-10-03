@@ -39,50 +39,36 @@
 **
 ****************************************************************************/
 
-#ifndef UT_CNTSQLSEARCH_H
-#define UT_CNTSQLSEARCH_H
+#ifndef QVERSITCONTACTPLUGINLOADER_P_H
+#define QVERSITCONTACTPLUGINLOADER_P_H
 
-#include <QObject>
+#include <QMap>
+#include <QStringList>
+#include <QList>
 
-class CntSqlSearch;
+#include "qmobilityglobal.h"
+#include "qversitcontacthandler.h"
 
-class UT_CntSqlSearch : public QObject                 
+QTM_BEGIN_NAMESPACE
+
+class QVersitContactPluginLoader
 {
-     Q_OBJECT
-    
-private slots:
+    private:
+        QVersitContactPluginLoader();
 
-/*
- * In addition, there are four private slots that are not treated as testfunctions. 
- * They will be executed by the testing framework and can be used to initialize and clean up 
- * either the entire test or the current test function.
- * 
- * initTestCase() will be called before the first testfunction is executed.
- * cleanupTestCase() will be called after the last testfunction was executed.
- * init() will be called before each testfunction is executed.
- * cleanup() will be called after every testfunction.
-*/
-    void initTestCase();
-    void cleanupTestCase();
-    void init();
-    void cleanup();
+    public:
+        static QVersitContactPluginLoader* instance();
+        QList<QVersitContactHandler*> createContactHandlers(const QString& profile);
 
-private slots: //test methods
+    private:
+        void loadPlugins();
 
-    void testPredictiveSearch();
-    void testSelectTableView();
-	void testCreateQuery();
-	void testExactMatchSearch();
-	void testIntersectionSearch();
-	void testExactMatch();
-	void testCreateJoinTableSearch();
-    void testUpperLimit();
-    void testLowerLimit();
-    void testGetTokens();
-    
-private:
- 
-    CntSqlSearch* mCntSqlSearch;  
+        static QVersitContactPluginLoader* mInstance;
+        QSet<QString> mLoadedFactories;
+        QList<QVersitContactHandlerFactory*> mContactHandlerFactories;
+        QStringList mPluginPaths;
 };
 
-#endif // UT_CNTSQLSEARCH_H
+QTM_END_NAMESPACE
+
+#endif

@@ -79,7 +79,6 @@ typedef QPair<QContactLocalId, QContactLocalId> QOwnCardPair;
 CntSymbianEngine::CntSymbianEngine(const QMap<QString, QString>& parameters, QContactManager::Error* error)
     : m_dataBase(0),
       m_srvConnection(0),
-      m_managerUri(0),
       m_transformContact(0),
       m_contactFilter(0),
 #ifndef SYMBIAN_BACKEND_USE_SQLITE
@@ -649,6 +648,7 @@ void CntSymbianEngine::updateDisplayLabel(QContact& contact) const
 
 bool CntSymbianEngine::removeContacts(const QList<QContactLocalId>& contactIds, QMap<int, QContactManager::Error> *errorMap, QContactManager::Error* error)
 {
+    QContactChangeSet changeSet;
     *error = QContactManager::NoError;
     
     if (errorMap) {
@@ -656,15 +656,39 @@ bool CntSymbianEngine::removeContacts(const QList<QContactLocalId>& contactIds, 
         errorMap->clear();
     }
     
-    if (contactIds.count() == 0) {
+    if (contactIds.count() == 0 || contactIds.contains(0)) {
         *error = QContactManager::BadArgumentError;
         return false;
     }
     
-    QContactManager::Error err;
-    QContactLocalId selfCntId = selfContactId(&err); // err ignored
+    QContactManager::Error selfContactError;
+    QContactLocalId selfCntId = selfContactId(&selfContactError); // selfContactError ignored
 
-    QContactChangeSet changeSet;
+#ifdef SYMBIAN_BACKEND_USE_SQLITE
+    // try to batch remove all contacts
+    TRAPD(err,
+        CContactIdArray* idList = CContactIdArray::NewLC();
+        foreach (QContactLocalId contactId, contactIds) {
+            idList->AddL(TContactItemId(contactId));
+        }
+        m_dataBase->contactDatabase()->DeleteContactsL(*idList);
+        CleanupStack::PopAndDestroy(idList);
+    );
+
+    if (err == KErrNone) {
+        foreach (QContactLocalId contactId, contactIds) {
+            changeSet.insertRemovedContact(contactId);
+            m_dataBase->appendContactEmitted(contactId);
+        }
+        if (contactIds.contains(selfCntId)) {
+            QOwnCardPair ownCard(selfCntId, QContactLocalId(0));
+            changeSet.setOldAndNewSelfContactId(ownCard);
+        }
+    }
+    else {
+        CntSymbianTransformError::transformError(err, error);
+    }
+#else
     for (int i = 0; i < contactIds.count(); i++) {
         QContactLocalId current = contactIds.at(i);
         QContactManager::Error functionError = QContactManager::NoError;
@@ -674,16 +698,11 @@ bool CntSymbianEngine::removeContacts(const QList<QContactLocalId>& contactIds, 
                 errorMap->insert(i, functionError);
             }
         }
-#ifdef SYMBIAN_BACKEND_SIGNAL_EMISSION_TWEAK
-        else {
-            if (current == selfCntId ) {
-                QOwnCardPair ownCard(selfCntId, QContactLocalId(0));
-                changeSet.setOldAndNewSelfContactId(ownCard);
-            }
-        }
-#endif
     }
+#endif
+
     changeSet.emitSignals(this);
+
     return (*error == QContactManager::NoError);
 }
 

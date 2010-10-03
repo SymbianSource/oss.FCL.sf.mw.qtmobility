@@ -71,17 +71,16 @@ public:
 class Q_VERSIT_EXPORT QVersitContactExporterDetailHandlerV2
 {
 public:
-    static QVersitContactExporterDetailHandlerV2* createBackupHandler();
     virtual ~QVersitContactExporterDetailHandlerV2() {}
+
     virtual void detailProcessed(const QContact& contact,
                                  const QContactDetail& detail,
-                                 const QSet<QString>& processedFields,
                                  const QVersitDocument& document,
+                                 QSet<QString>* processedFields,
                                  QList<QVersitProperty>* toBeRemoved,
                                  QList<QVersitProperty>* toBeAdded) = 0;
     virtual void contactProcessed(const QContact& contact,
                                   QVersitDocument* document) = 0;
-    virtual int version() const { return 2; }
 };
 
 class Q_VERSIT_EXPORT QVersitContactExporter
@@ -94,6 +93,7 @@ public:
     };
 
     QVersitContactExporter();
+    QVersitContactExporter(const QString& profile);
     ~QVersitContactExporter();
 
     bool exportContacts(const QList<QContact>& contacts, QVersitDocument::VersitType versitType);
@@ -105,11 +105,8 @@ public:
     void setResourceHandler(QVersitResourceHandler* handler);
     QVersitResourceHandler* resourceHandler() const;
 
-    // Deprecated:
-
-    void Q_DECL_DEPRECATED setDetailHandler(QVersitContactExporterDetailHandler* handler);
-    QList<QVersitDocument> Q_DECL_DEPRECATED exportContacts(const QList<QContact>& contacts);
     /* deprecated and internal */
+    void Q_DECL_DEPRECATED setDetailHandler(QVersitContactExporterDetailHandler* handler);
     Q_DECL_DEPRECATED QVersitContactExporterDetailHandler* detailHandler() const;
 
 private:

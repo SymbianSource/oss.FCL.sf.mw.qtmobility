@@ -68,8 +68,7 @@ symbian: {
         inc/filtering/cntsymbianfiltersql.h \
         inc/filtering/cntsymbiansorterdbms.h \
         inc/filtering/cntsymbiansrvconnection.h \
-        inc/filtering/cntdisplaylabelsqlfilter.h \
-        inc/filtering/cntsqlsearch.h
+        inc/filtering/cntdisplaylabelsqlfilter.h
         
     SOURCES += \
         src/transform/cnttransformcontact.cpp \
@@ -109,7 +108,6 @@ symbian: {
         src/filtering/cntsymbiansorterdbms.cpp \
         src/filtering/cntsymbiansrvconnection.cpp \
         src/filtering/cntdisplaylabelsqlfilter.cpp \
-        src/filtering/cntsqlsearch.cpp \
         src/cntsymbianengine.cpp \
         src/cntabstractrelationship.cpp \
         src/cntrelationshipgroup.cpp \
@@ -147,4 +145,9 @@ symbian: {
     symbianplugin.sources = $${TARGET}.dll
     symbianplugin.path = $${QT_PLUGINS_BASE_DIR}/$${PLUGIN_TYPE}
     DEPLOYMENT += symbianplugin
+    
+    # Public header
+    headers.path = epoc32/include
+    headers.sources = inc/contactbackendsdefs.h
+    for(header, headers.sources):BLD_INF_RULES.prj_exports += "$$header $$deploy.path$$headers.path/$$basename(header)"
 }

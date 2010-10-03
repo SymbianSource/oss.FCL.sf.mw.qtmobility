@@ -7,8 +7,7 @@ include(../../common.pri)
 
 DEFINES += QT_BUILD_VERSIT_LIB QT_MAKEDLL QT_ASCII_CAST_WARNINGS
 
-CONFIG += mobility
-MOBILITY = contacts
+qtAddLibrary(QtContacts)
 
 # Contacts Includepath
 INCLUDEPATH += . \
@@ -25,11 +24,11 @@ PUBLIC_HEADERS +=  \
     qversitwriter.h \
     qversitcontactexporter.h \
     qversitcontactimporter.h \
-    qversitresourcehandler.h
+    qversitcontacthandler.h \
+    qversitresourcehandler.h \
 
 # Private Headers
 PRIVATE_HEADERS += \
-    qvcardbackuphandlers_p.h \
     qversitdocument_p.h \
     qversitdocumentwriter_p.h \
     qversitproperty_p.h \
@@ -40,10 +39,13 @@ PRIVATE_HEADERS += \
     qversitcontactexporter_p.h \
     qversitcontactimporter_p.h \
     qversitdefs_p.h \
+    qversitcontactsdefs_p.h \
+    qversitcontactpluginloader_p.h \
     versitutils_p.h
 
 # Implementation
-SOURCES += qversitdocument.cpp \
+SOURCES += \
+    qversitdocument.cpp \
     qversitdocument_p.cpp \
     qversitdocumentwriter_p.cpp \
     qversitproperty.cpp \
@@ -57,8 +59,9 @@ SOURCES += qversitdocument.cpp \
     qversitcontactexporter_p.cpp \
     qversitcontactimporter.cpp \
     qversitcontactimporter_p.cpp \
-    qvcardbackuphandlers_p.cpp \
     qversitresourcehandler.cpp \
+    qversitcontacthandler.cpp \
+    qversitcontactpluginloader_p.cpp \
     versitutils.cpp
 
 HEADERS += \
@@ -68,16 +71,13 @@ HEADERS += \
 symbian { 
     TARGET.UID3 = 0x2002BFBF
     TARGET.EPOCALLOWDLLDATA = 1
-    TARGET.CAPABILITY = ALL \
-        -TCB
-        
-    defFiles = \
-        "$${LITERAL_HASH}ifdef WINSCW" \
-        "DEFFILE ../s60installs/bwins/$${TARGET}.def" \
-        "$${LITERAL_HASH}elif defined EABI" \
-        "DEFFILE ../s60installs/eabi/$${TARGET}.def" \
-        "$${LITERAL_HASH}endif "
-    MMP_RULES += defFiles
+    TARGET.CAPABILITY = ALL -TCB
+
+    LIBS += -lefsrv
+
+    VERSIT_DEPLOYMENT.sources = QtVersit.dll
+    VERSIT_DEPLOYMENT.path = /sys/bin
+    DEPLOYMENT += VERSIT_DEPLOYMENT
 }
 
 maemo5|maemo6 {

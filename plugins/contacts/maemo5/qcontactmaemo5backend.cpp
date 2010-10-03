@@ -295,6 +295,9 @@ QMap<QString, QContactDetailDefinition> QContactMaemo5Engine::detailDefinitions(
     QContactDetailFieldDefinition gsfd; //Generic string field definition
     gsfd.setDataType(QVariant::String);
 
+    // XXX NOTE: only QContactPhoneNumber, QContactOnlineAccount,
+    // QContactEmailAddress and QContactAddress are currently non-unique.
+    
     // QContactAddress
     fields = defns[contactType][QContactAddress::DefinitionName].fields();
     fields.remove(QContactAddress::FieldSubTypes);
@@ -405,13 +408,9 @@ QMap<QString, QContactDetailDefinition> QContactMaemo5Engine::detailDefinitions(
     defns[contactType][QContactPhoneNumber::DefinitionName].setFields(fields);
     defns[contactType][QContactPhoneNumber::DefinitionName].setUnique(false);
 
-    // QContactPresence
-    fields = defns[contactType][QContactPresence::DefinitionName].fields();
-    fields.remove(QContactPresence::FieldTimestamp);
-    fields.remove(QContactPresence::FieldPresenceState);
-    defns[contactType][QContactPresence::DefinitionName].setFields(fields);
-    defns[contactType][QContactPresence::DefinitionName].setUnique(false);
-    
+    // No QContactPresence
+    defns[contactType].remove(QContactPresence::DefinitionName);
+
     // No QContactRingtone
     defns[contactType].remove(QContactRingtone::DefinitionName);
     
@@ -425,7 +424,7 @@ QMap<QString, QContactDetailDefinition> QContactMaemo5Engine::detailDefinitions(
     fields = defns[contactType][QContactTimestamp::DefinitionName].fields();
     fields.remove(QContactDetail::FieldContext);
     defns[contactType][QContactTimestamp::DefinitionName].setFields(fields);
-    
+
     // QContactType
     fields = defns[contactType][QContactType::DefinitionName].fields();
     fields.remove(QContactDetail::FieldContext);
@@ -621,7 +620,7 @@ void QContactMaemo5Engine::performAsynchronousOperation(){
      } break;
      default:
      {
-       // this engine currently does not support mutable definitions.
+       // symbian engine currently does not support mutable definitions.
      } break;
 
     

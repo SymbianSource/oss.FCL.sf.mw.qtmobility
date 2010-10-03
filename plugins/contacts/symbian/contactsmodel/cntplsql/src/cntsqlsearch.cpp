@@ -1,43 +1,18 @@
-/****************************************************************************
-**
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** No Commercial Usage
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
-**
-**
-**
-**
-**
-**
-**
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+/*
+* Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description: Retrieves the character map for each of the numeric keys.
+*/
 #include <QStringList>
 
 #include "cntsqlsearch.h"
@@ -86,23 +61,24 @@ const QChar KHashChar('#');
 //Predictive search table
 const QString QwertyTableName = "qm";
 
-CntSqlSearch::CntSqlSearch()
-	{
-    QT_TRAP_THROWING(mQertyKeyMap = CQwertyKeyMap::NewL());
-    QT_TRAP_THROWING(mkeyKeyMap = C12keyKeyMap::NewL());
-	}
+CntSqlSearch::CntSqlSearch( const CPcsKeyMap& twelveKeyKeyMap,
+                            const CPcsKeyMap& qertyKeyMap ) 
+        
+    : mkeyKeyMap( static_cast<const C12keyKeyMap*>(&twelveKeyKeyMap) ),
+      mQertyKeyMap( static_cast<const CQwertyKeyMap*>(&qertyKeyMap) )
+    {
+    }
 
 CntSqlSearch::~CntSqlSearch()
     {
-    delete mQertyKeyMap;
-    delete mkeyKeyMap;
     }
+
 // Basic cases:
 // 1: "0", "5"
 // Just one digit. Select all contact ids from the table. No need to compare
 // values.
 //
-// 2: "123", "01", "10", "010", "00"
+// 2: "123", "01", "10", "00"
 // No zeros which have non-zeros in their both sides
 // One or zero tokens, when pattern is split using '0'.
 //
@@ -117,7 +93,7 @@ CntSqlSearch::~CntSqlSearch()
 // and those digits are not the same.
 // Two tokens, each with length of 1 and tokens are different.
 //
-// 5: "1023", "0102", "1010", "00100200", "10203", "01020304050"
+// 5: "1023", "1010", "00100200", "10203", "01020304050"
 // Two tokens, at least one of them has length > 1.
 // If tokens are identical, handle as case 3, otherwise handle as case 4.
 // ("10203" -> tokens "1" and "203"
@@ -126,7 +102,11 @@ CntSqlSearch::~CntSqlSearch()
 // 6: "10", "1000"
 // One token, ends with zero.
 // In this case, query should look-up first toke and number ("10", "1000").
-
+//
+// 7: "0102"
+// Same case 5, but first zero is remover in order to get more matches. 
+// e.g. 0102 is 01 AND 2 or 1 AND 2.
+//
 QString CntSqlSearch::CreatePredictiveSearch(const QString &pattern)
 	{
 	int len = pattern.length();
@@ -310,16 +290,15 @@ QString CntSqlSearch::CreateQwertyQuery(const QString& pattern) const
 QString CntSqlSearch::CreateQuery(const QString& pattern) const
 	{
 	QStringList tokens = GetTokens(pattern);
-	if (tokens.count() < KTwoTokens)
+	if (TestPattern(pattern, CntSqlSearch::ZeroIsFirstNumber))
+        {
+        return CompareTwoColumnsWithModifiedPattern(pattern, tokens);  // Case 7
+        }
+	else if(tokens.count() < KTwoTokens)
         {
 	    if (TestPattern(pattern, CntSqlSearch::ZerosEndOfFirstToken))
             {
             return TwoDifferentTokensSearch(pattern, tokens);  // Case 6
-            }
-	    
-	    if (TestPattern(pattern, CntSqlSearch::ZeroIsFirstNumber))
-            {
-            return CompareTwoColumnsWithModifiedPattern(pattern, tokens);  // Case 7
             }
         else
             {
@@ -334,7 +313,7 @@ QString CntSqlSearch::CreateQuery(const QString& pattern) const
             }
         else
             {
-            return IntersectionSearch(pattern, tokens); // Case 4
+            return IntersectionSearch(pattern, tokens); // Case 4 or 5 first token start with multible zeros.
             }
         }
 	}
@@ -502,15 +481,15 @@ QString CntSqlSearch::IdenticalTokensSearch(const QString& pattern,
 QString CntSqlSearch::TwoDifferentTokensSearch(const QString& pattern, const QStringList& tokens) const
         {
         QString token = tokens.at(0);
-        QString sortPatern = pattern;
-        sortPatern.truncate(pattern.length()-1);
+        /*QString sortPatern = pattern;
+        sortPatern.truncate(pattern.length()-1);*/
 #if defined(USE_DEMORGAN)
         QString query(SELECT_CONTACT_ID + SelectTable(pattern) + " WHERE NOT(NOT" +
-            ExactMatch(sortPatern) +
+            ExactMatch(token) +
         " AND NOT" + ExactMatch(pattern) + ")");
 #else
         QString query(SELECT_CONTACT_ID + SelectTable(pattern) + " WHERE (" +
-            ExactMatch(sortPatern) +  // exact match (e.g. "2")
+            ExactMatch(token) +  // exact match (e.g. "2")
         ") OR " + ExactMatch(pattern)); // exact match (e.g. "20")
 #endif
         query += Order(tokens);
@@ -527,26 +506,116 @@ QString CntSqlSearch::TwoDifferentTokensSearch(const QString& pattern, const QSt
         WHERE ((NOT(NOT(predictivesearch0.nbr>22517998136852479 AND predictivesearch0.nbr<27021597764222976) AND NOT(predictivesearch0.nbr2>22517998136852479 AND predictivesearch0.nbr2<27021597764222976) AND NOT(predictivesearch0.nbr3>22517998136852479 AND predictivesearch0.nbr3<27021597764222976) AND NOT(predictivesearch0.nbr4>22517998136852479 AND predictivesearch0.nbr4<27021597764222976)))) 
     ) AS PR
     ORDER BY PR.first_name, PR.last_name ASC;
+    
+    - AND case - 
+    SELECT contact_id FROM (
+    SELECT predictivesearch5.contact_id, predictivesearch5.first_name, predictivesearch5.last_name FROM predictivesearch5 WHERE NOT(NOT(NOT(NOT(nbr>382805968326492159 AND nbr<387309567953862656) AND NOT(nbr2>382805968326492159 AND nbr2<387309567953862656) AND NOT(nbr3>382805968326492159 AND nbr3<387309567953862656) AND NOT(nbr4>382805968326492159 AND nbr4<387309567953862656))) AND NOT(NOT(NOT(nbr2>360287970189639679 AND nbr2<432345564227567616 AND nbr>382805968326492159 AND nbr<387309567953862656) AND NOT(nbr3>360287970189639679 AND nbr3<432345564227567616 AND nbr>382805968326492159 AND nbr<387309567953862656) AND NOT(nbr3>360287970189639679 AND nbr3<432345564227567616 AND nbr2>382805968326492159 AND nbr2<387309567953862656) AND NOT(nbr4>360287970189639679 AND nbr4<432345564227567616 AND nbr>382805968326492159 AND nbr<387309567953862656) AND NOT(nbr4>360287970189639679 AND nbr4<432345564227567616 AND nbr2>382805968326492159 AND nbr2<387309567953862656) AND NOT(nbr4>360287970189639679 AND nbr4<432345564227567616 AND nbr3>382805968326492159 AND nbr3<387309567953862656))) AND NOT(NOT(NOT(nbr2>382805968326492159 AND nbr2<387309567953862656 AND nbr>360287970189639679 AND nbr<432345564227567616) AND NOT(nbr3>382805968326492159 AND nbr3<387309567953862656 AND nbr>360287970189639679 AND nbr<432345564227567616) AND NOT(nbr3>382805968326492159 AND nbr3<387309567953862656 AND nbr2>360287970189639679 AND nbr2<432345564227567616) AND NOT(nbr4>382805968326492159 AND nbr4<387309567953862656 AND nbr>360287970189639679 AND nbr<432345564227567616) AND NOT(nbr4>382805968326492159 AND nbr4<387309567953862656 AND nbr2>360287970189639679 AND nbr2<432345564227567616) AND NOT(nbr4>382805968326492159 AND nbr4<387309567953862656 AND nbr3>360287970189639679 AND nbr3<432345564227567616)))) 
+    UNION
+    SELECT predictivesearch0.contact_id, predictivesearch0.first_name, predictivesearch0.last_name FROM predictivesearch0 WHERE ((NOT(NOT(predictivesearch0.nbr>23930870578544639 AND predictivesearch0.nbr<23931970090172416) AND NOT(predictivesearch0.nbr2>23930870578544639 AND predictivesearch0.nbr2<23931970090172416) AND NOT(predictivesearch0.nbr3>23930870578544639 AND predictivesearch0.nbr3<23931970090172416) AND NOT(predictivesearch0.nbr4>23930870578544639 AND predictivesearch0.nbr4<23931970090172416)))) AND NOT(NOT(NOT(nbr2>360287970189639679 AND nbr2<432345564227567616 AND nbr>0387309567953862656382805968326492159 AND nbr<0387309567953862656382805968326492159) AND NOT(nbr3>360287970189639679 AND nbr3<432345564227567616 AND nbr>0387309567953862656382805968326492159 AND nbr<0387309567953862656382805968326492159) AND NOT(nbr3>360287970189639679 AND nbr3<432345564227567616 AND nbr2>0387309567953862656382805968326492159 AND nbr2<0387309567953862656382805968326492159) AND NOT(nbr4>360287970189639679 AND nbr4<432345564227567616 AND nbr>0387309567953862656382805968326492159 AND nbr<0387309567953862656382805968326492159) AND NOT(nbr4>360287970189639679 AND nbr4<432345564227567616 AND nbr2>0387309567953862656382805968326492159 AND nbr2<0387309567953862656382805968326492159) AND NOT(nbr4>360287970189639679 AND nbr4<432345564227567616 AND nbr3>0387309567953862656382805968326492159 AND nbr3<0387309567953862656382805968326492159))) AND NOT(NOT(NOT(nbr2>0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr2<0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr>360287970189639679 AND nbr<432345564227567616) AND NOT(nbr3>0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr3<0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr>360287970189639679 AND nbr<432345564227567616) AND NOT(nbr3>0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr3<0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr2>360287970189639679 AND nbr2<432345564227567616) AND NOT(nbr4>0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr4<0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr>360287970189639679 AND nbr<432345564227567616) AND NOT(nbr4>0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr4<0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr2>360287970189639679 AND nbr2<432345564227567616) AND NOT(nbr4>0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr4<0387309567953862656382805968326492159387309567953862656382805968326492159 AND nbr3>360287970189639679 AND nbr3<432345564227567616)))
+    )AS PR ORDER BY PR.first_name, PR.last_name ASC;
     */
 
 QString CntSqlSearch::CompareTwoColumnsWithModifiedPattern(const QString& pattern,
                                                                   const QStringList& tokens) const
     {
-    QString patternAfterZero = pattern.right(pattern.count() - 1);
-    // It has been checked earlier that tables are not same
-    QString firstTable = SelectTable(pattern);
-    QString secondTable = SelectTable(patternAfterZero);
     QString queryString;
-    if (patternAfterZero.count() == 1)
-        { 
+    QString lower;
+    QString upper;
+    QString lower2;
+    QString upper2;
+    QString lower_without_zero;
+    QString upper_without_zero;
+    QString lower2_without_zero;
+    QString upper2_without_zero;
+    int err;
+    int i(0);
+    
+    QString firstTokenWithoutZeros = tokens.at(0);
+    firstTokenWithoutZeros.remove(QChar('0'), Qt::CaseInsensitive);
+
+    QString firstTable = SelectTable(pattern);
+    QString secondTable = SelectTable(firstTokenWithoutZeros);
+    
+    QString secondTokenWithoutZeros;
+    
+    if(tokens.count() > 1)
+        {
+        secondTokenWithoutZeros = tokens.at(1);
+        i = pattern.length()-1;
+        while (pattern[i] == '0') 
+               {
+               --i;
+               }
+        if(pattern.length()-1 != i)
+            {
+            pattern.leftRef(i);
+            }
+        //secondTokenWithoutZeros.remove(QChar('0'), Qt::CaseInsensitive);
+        }
+    
+    // Case like 05
+    if (tokens.at(0).count() == 1 && pattern.length() == 2)
+        {
         queryString = QString("SELECT contact_id FROM (SELECT " + secondTable + ".contact_id, " + secondTable + ".first_name, " + secondTable + ".last_name FROM " + secondTable 
                                 + " UNION SELECT " + firstTable + ".contact_id, " + firstTable + ".first_name, " + firstTable + ".last_name FROM " + firstTable 
                                 + " WHERE " + ModifiedMatchColumns( pattern) + ") AS PR ORDER BY PR.first_name, PR.last_name ASC;");
         }
+    //case like 05055 or 0506 or 00506 
+    else if (tokens.count() > 1)
+        { 
+        err = mkeyKeyMap->GetNumericLimits(tokens.at(0), lower, upper);
+        if(err)
+            {
+            return QString("");
+            }
+        err = mkeyKeyMap->GetNumericLimits(tokens.at(1), lower2, upper2);
+        if(err)
+            {
+            return QString("");
+            }
+        
+        err = mkeyKeyMap->GetNumericLimits(firstTokenWithoutZeros, lower_without_zero, upper_without_zero);
+        if(err)
+            {
+            return QString("");
+            }
+        
+        err = mkeyKeyMap->GetNumericLimits(secondTokenWithoutZeros, lower2_without_zero, upper2_without_zero);
+        if(err)
+           {
+           return QString("");
+           }
+
+        queryString = QString("SELECT contact_id FROM (SELECT " + secondTable + ".contact_id, " + secondTable + ".first_name, " + secondTable + ".last_name FROM " + secondTable + 
+                                   + " WHERE (" + CompareTwoColumns(lower_without_zero, upper_without_zero, lower2_without_zero, upper2_without_zero) + " OR" +
+                                   CompareTwoColumns(lower2_without_zero, upper2_without_zero, lower_without_zero, upper_without_zero) + ")" +
+                              " UNION" +
+                                   " SELECT " + firstTable + ".contact_id, " + firstTable + ".first_name, " + firstTable + ".last_name FROM " + firstTable 
+                                   + " WHERE " + ModifiedMatchColumns( pattern) + " OR"
+                                   + CompareTwoColumns(lower, upper, lower2, upper2) + " OR"
+                                   + CompareTwoColumns(lower2, upper2, lower, upper) +
+                              ") AS PR ORDER BY PR.first_name, PR.last_name ASC;");
+            
+        
+            
+            /* "SELECT contact_id FROM ( SELECT... UNION SELECT ...) AS PR ORDER BY PR.first_name, PR.last_name ASC;*/
+            /* 5 table 
+             queryString = QString("SELECT " + secondTable + ".contact_id, " + secondTable + ".first_name, " + secondTable + ".last_name FROM " + secondTable 
+                                                + " WHERE NOT(NOT" + ExactMatch(tokens.at(0)) + " AND NOT" +
+                                               CompareTwoColumns(lower, upper, lower2, upper2) + " AND NOT" +
+                                               CompareTwoColumns(lower2, upper2, lower, upper) + " );");*/
+        
+            /* table 0 queryString = QString("SELECT " + firstTable + ".contact_id, " + firstTable + ".first_name, " + firstTable + ".last_name FROM " + firstTable 
+                                               + " WHERE " + ModifiedMatchColumns( pattern) + " AND NOT"
+                                               + CompareTwoColumns(zeroPrefix.append(lower), zeroPrefix.append(upper), lower2, upper2) + " AND NOT"
+                                               + CompareTwoColumns(lower2, upper2, zeroPrefix.append(lower), zeroPrefix.append(upper)));*/
+                
+        }
     else
         {
+        //case like 055
         queryString = QString("SELECT contact_id FROM (SELECT " + secondTable + ".contact_id, " + secondTable + ".first_name, " + secondTable + ".last_name FROM " + secondTable 
-                                + " WHERE " + ModifiedMatchColumns( patternAfterZero) + 
+                                + " WHERE " + ModifiedMatchColumns( firstTokenWithoutZeros) + 
                                 + " UNION SELECT " + firstTable + ".contact_id, " + firstTable + ".first_name, " + firstTable + ".last_name FROM " + firstTable 
                                 + " WHERE " + ModifiedMatchColumns( pattern) + ") AS PR ORDER BY PR.first_name, PR.last_name ASC;");
         }
@@ -948,8 +1017,8 @@ bool CntSqlSearch::TestPattern( const QString &pattern, SearchMethod searchMetho
         {
         if (CntSqlSearch::ZerosEndOfFirstToken == searchMethod)
             {
-            if( tokens.count() == KOneToken && !tokens.at(0).contains("0")
-                && !pattern.startsWith('0') && pattern.count('0') == 1
+            if( tokens.count() == KOneToken /*&& !tokens.at(0).contains("0")*/
+                && !pattern.startsWith('0') /*&& pattern.count('0') == 1*/
                 && pattern.endsWith('0'))
                 {
                 return true;
@@ -957,8 +1026,11 @@ bool CntSqlSearch::TestPattern( const QString &pattern, SearchMethod searchMetho
             }
         if (CntSqlSearch::ZeroIsFirstNumber == searchMethod )
             {
-            if(pattern.startsWith('0') && pattern.count() > 1 
-                && pattern.at(1) != '0')
+            if(pattern.startsWith('0') && pattern.count() > 1 )
+                {
+                return true;
+                }
+            if (pattern.startsWith('0') && tokens.count() >= KTwoTokens )
                 {
                 return true;
                 }

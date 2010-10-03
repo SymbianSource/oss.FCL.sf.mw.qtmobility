@@ -184,12 +184,7 @@ void CQwertyPredictiveSearchTable::CreateTableL()
 
 TBool CQwertyPredictiveSearchTable::IsValidChar(const QChar aChar) const
 	{
-#if defined(USE_ORBIT_KEYMAP)
 	return static_cast<CQwertyKeyMap*>(iKeyMap)->IsValidChar(aChar);
-#else
-	const QChar PAD_CHAR = '!'; // This is a hack, must have same value as in cqwertykeymap.cpp
-	return static_cast<CQwertyKeyMap*>(iKeyMap)->UseHardcodedKeyMap(aChar) != PAD_CHAR;
-#endif
 	}
 
 
@@ -260,20 +255,18 @@ void CQwertyPredictiveSearchTable::FillKeyboardSpecificFieldsL(
 * Fetch up to 3 mail addresses
 */
 QStringList CQwertyPredictiveSearchTable::GetTableSpecificFields(
-	const CContactItem& aItem,
-	TBool& aMandatoryFieldsPresent) const
+	const CContactItem& aItem) const
 	{
 	PRINT(_L("CQwertyPredictiveSearchTable::GetTableSpecificFields"));
 
 	QStringList mailAddresses;
 	
-	// Check that the contact item is a card, own card or ICC entry.
+	// Check the contact item is a card, own card or ICC entry.
 	const TUid KType = aItem.Type();
 	if (KType != KUidContactCard &&
 		KType != KUidContactOwnCard &&
 		KType != KUidContactICCEntry)
 		{
-		aMandatoryFieldsPresent = EFalse;
 		return mailAddresses;
 		}
 
@@ -301,13 +294,23 @@ QStringList CQwertyPredictiveSearchTable::GetTableSpecificFields(
 				PRINT1(_L("prefix removed, mail='%S'"), &log);
 #endif
 				}
-			mailAddresses.append(iKeyMap->GetMappedString(address));
-			++storedAddressCount;
+            // Ignore mail addresses that begin with unmapped character
+            QString mapped = iKeyMap->GetMappedString(address);
+            if (mapped.length() > 0 && IsValidChar(mapped[0]))
+                {
+                mailAddresses.append(mapped);
+                ++storedAddressCount;
+                }
+#if defined(WRITE_PRED_SEARCH_LOGS)
+			else
+				{
+				PRINT(_L("mail begins with unmapped char, ignore mail"));
+				}
+#endif
 			}
 		}
 	PRINT1(_L("CQwertyPredictiveSearchTable::GetTableSpecificFields found %d mail addrs"),
 		   mailAddresses.count());
-	aMandatoryFieldsPresent = (mailAddresses.count() > 0);
 	return mailAddresses;
 	}
 

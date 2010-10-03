@@ -23,3 +23,4 @@ radioutility_s60_enabled = yes
 openmaxal_symbian_enabled = yes
 surfaces_s60_enabled = yes
 messaging_freestyle_enabled = yes
+messaging_qthighway_enabled = yes

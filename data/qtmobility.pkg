@@ -3,7 +3,7 @@
 &EN
 
 ; SIS header: name, uid, version
-#{"QtMobility"},(0x2002AC89),1,0,2,TYPE=SA,RU
+#{"QtMobility"},(0x2002AC89),1,0,3,TYPE=SA,RU
 
 ; Localised Vendor name
 %{"Nokia"}
@@ -56,3 +56,5 @@
 "/epoc32/data/z/resource/plugins/cntvcard.rsc"             - "!:\resource\plugins\cntvcard.rsc"
 "/epoc32/data/z/resource/plugins/cntphone.rsc"             - "!:\resource\plugins\cntphone.rsc"
 "/epoc32/data/z/resource/cntmodel/cntmodel.rsc"            - "!:\resource\cntmodel\cntmodel.rsc"
+
+"/epoc32/data/z/private/10202D56/import/packages/2002AC89/backup_registration.xml"   - "!:\private\10202D56\import\packages\2002AC89\backup_registration.xml"

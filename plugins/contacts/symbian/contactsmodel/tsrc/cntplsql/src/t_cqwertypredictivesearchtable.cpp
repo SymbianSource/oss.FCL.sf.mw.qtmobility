@@ -92,13 +92,10 @@ void UT_CQwertyPredictiveSearchTable::ConstructL()
     // The ConstructL from the base class CEUnitTestSuiteClass must be called.
     // It generates the test case table.
     CEUnitTestSuiteClass::ConstructL();
-    
 
-#if defined(USE_ORBIT_KEYMAP)
     // Create singleton outside actual test cases so that it is not treated as
     // resource leak, since it can't be deleted.
     HbKeymapFactory::instance();
-#endif
     }
     
 // -----------------------------------------------------------------------------
@@ -237,6 +234,44 @@ void UT_CQwertyPredictiveSearchTable::UT_DeleteLL()
     CleanupStack::PopAndDestroy(contact);
     
     CheckItemCountL(InitTableVector());
+    }
+
+// -----------------------------------------------------------------------------
+// UT_CQwertyPredictiveSearchTable::UT_UnmappedMailAddressL
+// -----------------------------------------------------------------------------
+//
+void UT_CQwertyPredictiveSearchTable::UT_UnmappedMailAddressL()
+    {
+    // All names and mail addresses begin with unmapped characters, so contact
+    // is not stored to QWERTY tables at all.
+    _LIT(KUnmappedName, "8nbrAtStart");
+    _LIT(KNameWithUnmappedChars, "rname28afterNbr");
+    _LIT(KUnmappedMail, "mailto:123user@domain");
+    _LIT(KUnmappedMail2, "800@call.id");
+    _LIT(KUnmappedMail3, "5begins@by.nbr");
+    AddContactL(KTestContactId, KUnmappedName, KNullDesC, KUnmappedMail, KUnmappedMail2); 
+    // Check tables are empty
+    CheckItemCountL(InitTableVector());
+    
+    
+    // One mail address begin with a mapped character
+    AddContactL(KTestContactId2, KNullDesC, KNameWithUnmappedChars, 
+                KUnmappedMail, KUnmappedMail2, KMail);
+    
+    QVector<TInt> result = InitTableVector();
+    result[3] = 1; // KNameWithUnmappedChars
+    result[4] = 1; // KMail
+    CheckItemCountL(result);
+    
+   
+    // All mail addresses begin with unmapped characters, but contact can be
+    // searched by first name and last name. Contact is stored to QWERTY tables.
+    AddContactL(KTestContactId3, KNameWithUnmappedChars, KLastName, 
+                KUnmappedMail, KUnmappedMail2, KUnmappedMail3);
+    
+    result[2] = 1; // KLastName
+    result[3] = 2; // Second KNameWithUnmappedChars
+    CheckItemCountL(result);
     }
 
 // -----------------------------------------------------------------------------
@@ -397,6 +432,13 @@ EUNIT_TEST(
     "DeleteL",
     "FUNCTIONALITY",
     SetupL, UT_DeleteLL, Teardown )
+
+EUNIT_TEST(
+    "CreateInDbL - unmapped mail address",
+    "UT_CQwertyPredictiveSearchTable",
+    "CreateInDbL",
+    "FUNCTIONALITY",
+    SetupL, UT_UnmappedMailAddressL, Teardown )
 
 EUNIT_END_TEST_TABLE
 

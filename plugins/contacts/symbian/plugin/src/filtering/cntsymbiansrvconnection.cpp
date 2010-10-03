@@ -51,7 +51,7 @@
 
 // Constants
 // To be removed. Should be defined in a header file
-#define KCntSearchResultList 99
+
 #define KCntOpenDataBase 100 // = KCapabilityReadUserData
 
 _LIT(KCntServerExe,"CNTSRV.EXE");   // Name of the exe for the Contacts server.
@@ -101,11 +101,48 @@ QList<QContactLocalId> CntSymbianSrvConnection::searchContacts(const QString& sq
 {
     QList<QContactLocalId> list;
     TPtrC queryPtr(reinterpret_cast<const TUint16*>(sqlQuery.utf16()));
-    TRAPD(err, list = searchContactIdsL(queryPtr));
+    TRAPD(err, list = searchContactIdsL(queryPtr, CntSymbianSrvConnection::CntSearchResultList));
     CntSymbianTransformError::transformError(err, error);
     return list;
 }
 
+/*!
+ * Fetches list of matched contact ids with phonenumber fields
+ * SELECT contact_id, extra_value FROM comm_addr
+ * WHERE value = [value string] AND type = [type value];
+ * 
+ * \a sqlQuery An SQL query
+ * \a error On return, contains the possible error.
+ * \return the list of matched contact ids and values
+ */
+QList<QPair<QContactLocalId, QString> > CntSymbianSrvConnection::searchPhoneNumbers(const QString& sqlQuery, 
+                                              QContactManager::Error* error)
+{
+    QList<QPair<QContactLocalId, QString> > list;
+    TPtrC queryPtr(reinterpret_cast<const TUint16*>(sqlQuery.utf16()));
+    TRAPD(err, list = searchPhoneNumbersL(queryPtr, CntSymbianSrvConnection::CntSearchResultList));
+    CntSymbianTransformError::transformError(err, error);
+    return list;
+}
+
+/*!
+ * Query the SQL database
+ * 
+ * \a sqlQuery An SQL query
+ * a QueryType query type
+ * \a error On return, contains the possible error.
+ * \return the list of matched contact ids
+ */
+QList<QContactLocalId> CntSymbianSrvConnection::searchOnServer(const QString& sqlQuery,
+                                                                QueryType aQueryType,
+                                                                QContactManager::Error* error)
+{
+    QList<QContactLocalId> list;
+    TPtrC queryPtr(reinterpret_cast<const TUint16*>(sqlQuery.utf16()));
+    TRAPD(err, list = searchContactIdsL(queryPtr, aQueryType));
+        CntSymbianTransformError::transformError(err, error);
+    return list;
+}
 /*!
  * Fetches all contact names from the database. If there are more than 3000 contacts,
  * only the first (by id) 3000 contacts will be fetched due to RAM restrictions.
@@ -153,9 +190,9 @@ QContact CntSymbianSrvConnection::searchContactName(QContactLocalId id,
  * \a aSqlQuery An SQL query
  * \return the list of matched contact ids
  */
-QList<QContactLocalId> CntSymbianSrvConnection::searchContactIdsL(const TDesC& aSqlQuery)
+QList<QContactLocalId> CntSymbianSrvConnection::searchContactIdsL(const TDesC& aSqlQuery, QueryType aQueryType)
 {
-    readContactsToBufferL(aSqlQuery);
+    readContactsToBufferL(aSqlQuery, aQueryType);
 
     RBufReadStream readStream;
     QList<QContactLocalId> list;
@@ -173,11 +210,36 @@ QList<QContactLocalId> CntSymbianSrvConnection::searchContactIdsL(const TDesC& a
  * The leaving function that queries the SQL database
  * 
  * \a aSqlQuery An SQL query
+ * \return the list of matched contact ids and phonenumber values
+ */
+QList<QPair<QContactLocalId, QString> > CntSymbianSrvConnection::searchPhoneNumbersL(const TDesC& aSqlQuery, QueryType aQueryType)
+{
+    readContactsToBufferL(aSqlQuery, aQueryType);
+
+    RBufReadStream readStream;
+    QList<QPair<QContactLocalId, QString> > list;
+    TInt item;
+    TBuf<256> extraValue;
+    
+    readStream.Open(*m_buffer);
+    while ((item = readStream.ReadInt32L()) != 0) {
+        readStream >> extraValue;
+        QContactLocalId id = item;
+        list.append(qMakePair(id,QString::fromUtf16(extraValue.Ptr(), extraValue.Length())));
+    }
+
+    return list;
+}
+
+/*!
+ * The leaving function that queries the SQL database
+ * 
+ * \a aSqlQuery An SQL query
  * \return the list of matched contact ids
  */
 QList<QContact> CntSymbianSrvConnection::searchContactNamesL(const TDesC& aSqlQuery)
 {
-    readContactsToBufferL(aSqlQuery);
+    readContactsToBufferL(aSqlQuery, CntSymbianSrvConnection::CntSearchResultList);
 
     RBufReadStream readStream;
     QList<QContact> contacts;
@@ -230,7 +292,7 @@ QList<QContact> CntSymbianSrvConnection::searchContactNamesL(const TDesC& aSqlQu
  * \a id database id of the contact
  * \return the list of matched contact names
  */
-void CntSymbianSrvConnection::readContactsToBufferL(const TDesC& sqlQuery)
+void CntSymbianSrvConnection::readContactsToBufferL(const TDesC& sqlQuery, QueryType aQueryType)
 {
     // Initialize connection if it is not initialized yet.
     if (!m_isInitialized) {
@@ -242,15 +304,16 @@ void CntSymbianSrvConnection::readContactsToBufferL(const TDesC& sqlQuery)
     TIpcArgs args;
     args.Set(0, &GetReceivingBufferL());
     args.Set(1, &sqlQuery);
-    TInt newBuffSize = SendReceive(KCntSearchResultList, args);
+    TInt newBuffSize = SendReceive(aQueryType, args);
     User::LeaveIfError(newBuffSize);
     if (newBuffSize > 0) {
         args.Set(0, &GetReceivingBufferL(newBuffSize));
         args.Set(1, &sqlQuery);
-        User::LeaveIfError(SendReceive(KCntSearchResultList, args));
+        User::LeaveIfError(SendReceive(aQueryType, args));
     }
 }
 
+    
 /*!
  * Connect to / create a cntsrv server session
  */

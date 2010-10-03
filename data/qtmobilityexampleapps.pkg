@@ -2,7 +2,7 @@
 &EN
 
 ; SIS header: name, uid, version
-#{"QtMobilityExamples"},(0xE001E61D),1,0,2,TYPE=SA
+#{"QtMobilityExamples"},(0xE001E61D),1,0,3,TYPE=SA
  
 ; Localised Vendor name
 %{"Nokia, Qt"}
@@ -10,6 +10,14 @@
 ; Unique Vendor name
 :"Nokia, Qt"
 
+; Default HW/platform dependencies
+[0x101F7961],0,0,0,{"S60ProductID"}
+[0x102032BE],0,0,0,{"S60ProductID"}
+[0x102752AE],0,0,0,{"S60ProductID"}
+[0x1028315F],0,0,0,{"S60ProductID"}
+[0x20022e6d],0,0,0,{"S60ProductID"}
+
+;Bearer
 "/epoc32/release/armv5/urel/bearercloud.exe"                        - "!:\sys\bin\bearercloud.exe"
 "/epoc32/data/z/resource/apps/bearercloud.rsc"                      - "!:\resource\apps\bearercloud.rsc"
 "/epoc32/data/z/private/10003a3f/import/apps/bearercloud_reg.rsc"   - "!:\private\10003a3f\import\apps\bearercloud_reg.rsc"
@@ -18,6 +26,54 @@
 "/epoc32/data/z/resource/apps/bearermonitor.rsc"                    - "!:\resource\apps\bearermonitor.rsc"
 "/epoc32/data/z/private/10003a3f/import/apps/bearermonitor_reg.rsc" - "!:\private\10003a3f\import\apps\bearermonitor_reg.rsc"
 
-"/epoc32/release/armv5/urel/BearerEx.exe"                           - "!:\sys\bin\BearerEx.exe"
-"/epoc32/data/z/resource/apps/BearerEx.rsc"                         - "!:\resource\apps\BearerEx.rsc"
-"/epoc32/data/z/private/10003a3f/import/apps/BearerEx_reg.rsc"      - "!:\private\10003a3f\import\apps\BearerEx_reg.rsc"
+;Contacts
+"/epoc32/release/armv5/urel/samplephonebook.exe"                      - "!:\sys\bin\samplephonebook.exe"
+"/epoc32/data/z/resource/apps/samplephonebook.rsc"                    - "!:\resource\apps\samplephonebook.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/samplephonebook_reg.rsc" - "!:\private\10003a3f\import\apps\samplephonebook_reg.rsc"
+
+;Location
+"/epoc32/release/armv5/urel/satellitedialog.exe"                      - "!:\sys\bin\satellitedialog.exe"
+"/epoc32/data/z/resource/apps/satellitedialog.rsc"                    - "!:\resource\apps\satellitedialog.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/satellitedialog_reg.rsc" - "!:\private\10003a3f\import\apps\satellitedialog_reg.rsc"
+
+;Messaging
+"/epoc32/release/armv5/urel/querymessages.exe"                      - "!:\sys\bin\querymessages.exe"
+"/epoc32/data/z/resource/apps/querymessages.rsc"                    - "!:\resource\apps\querymessages.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/querymessages_reg.rsc" - "!:\private\10003a3f\import\apps\querymessages_reg.rsc"
+
+"/epoc32/release/armv5/urel/writemessage.exe"                      - "!:\sys\bin\writemessage.exe"
+"/epoc32/data/z/resource/apps/writemessage.rsc"                    - "!:\resource\apps\writemessage.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/writemessage_reg.rsc" - "!:\private\10003a3f\import\apps\writemessage_reg.rsc"
+
+;Multimedia
+"/epoc32/release/armv5/urel/player.exe"                      - "!:\sys\bin\player.exe"
+"/epoc32/data/z/resource/apps/player.rsc"                    - "!:\resource\apps\player.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/player_reg.rsc" - "!:\private\10003a3f\import\apps\player_reg.rsc"
+
+"/epoc32/release/armv5/urel/audiorecorder.exe"                      - "!:\sys\bin\audiorecorder.exe"
+"/epoc32/data/z/resource/apps/audiorecorder.rsc"                    - "!:\resource\apps\audiorecorder.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/audiorecorder_reg.rsc" - "!:\private\10003a3f\import\apps\audiorecorder_reg.rsc"
+
+"/epoc32/release/armv5/urel/slideshow.exe"                      - "!:\sys\bin\slideshow.exe"
+"/epoc32/data/z/resource/apps/slideshow.rsc"                    - "!:\resource\apps\slideshow.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/slideshow_reg.rsc" - "!:\private\10003a3f\import\apps\slideshow_reg.rsc"
+
+;Publish and Subscribe
+"/epoc32/release/armv5/urel/publish_subscribe.exe"                      - "!:\sys\bin\publish_subscribe.exe"
+"/epoc32/data/z/resource/apps/publish_subscribe.rsc"                    - "!:\resource\apps\publish_subscribe.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/publish_subscribe_reg.rsc" - "!:\private\10003a3f\import\apps\publish_subscribe_reg.rsc"
+
+;Sensors
+"/epoc32/release/armv5/urel/smallsensors.exe"                      - "!:\sys\bin\smallsensors.exe"
+"/epoc32/data/z/resource/apps/smallsensors.rsc"                    - "!:\resource\apps\smallsensors.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/smallsensors_reg.rsc" - "!:\private\10003a3f\import\apps\smallsensors_reg.rsc"
+
+;ServiceFramework
+"/epoc32/release/armv5/urel/servicebrowser.exe"                      - "!:\sys\bin\servicebrowser.exe"
+"/epoc32/data/z/resource/apps/servicebrowser.rsc"                    - "!:\resource\apps\servicebrowser.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/servicebrowser_reg.rsc" - "!:\private\10003a3f\import\apps\servicebrowser_reg.rsc"
+
+;SystemInfo
+"/epoc32/release/armv5/urel/qsysinfo.exe"                      - "!:\sys\bin\qsysinfo.exe"
+"/epoc32/data/z/resource/apps/qsysinfo.rsc"                    - "!:\resource\apps\qsysinfo.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/qsysinfo_reg.rsc" - "!:\private\10003a3f\import\apps\qsysinfo_reg.rsc"

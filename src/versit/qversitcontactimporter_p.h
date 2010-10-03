@@ -55,7 +55,6 @@
 
 #include "qmobilityglobal.h"
 #include "qversitcontactimporter.h"
-#include "qvcardbackuphandlers_p.h"
 
 #include <QList>
 #include <QDateTime>
@@ -69,16 +68,16 @@ class QContactDetail;
 class QContactOrganization;
 class QVersitProperty;
 class QVersitDocument;
+class QVersitContactHandler;
 
 class Q_AUTOTEST_EXPORT QVersitContactImporterPrivate
 {
 public:
-    QVersitContactImporterPrivate();
+    QVersitContactImporterPrivate(const QString& profile = QString());
     ~QVersitContactImporterPrivate();
 
     bool importContact(const QVersitDocument& versitDocument, int contactIndex,
                        QContact* contact, QVersitContactImporter::Error* error);
-    QList<QVersitProperty> unconvertedVersitProperties();
 
     static QString synthesizedDisplayLabel(const QContact& contact);
 
@@ -115,6 +114,7 @@ public: // Data
     QMap<int, QVersitContactImporter::Error> mErrors;
     QVersitContactImporterPropertyHandler* mPropertyHandler;
     QVersitContactImporterPropertyHandlerV2* mPropertyHandler2;
+    QList<QVersitContactHandler*> mPluginPropertyHandlers;
     int mPropertyHandlerVersion;
     QVersitDefaultResourceHandler* mDefaultResourceHandler;
     QVersitResourceHandler* mResourceHandler;
